@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.screens;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -14,11 +14,14 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication.model.UserHelperClass;
+import com.example.myapplication.R;
+import com.example.myapplication.model.User;
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.textfield.TextInputLayout;
+import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
 import com.google.firebase.database.DatabaseError;
 import com.google.firebase.database.DatabaseReference;
@@ -169,7 +172,7 @@ public class signup_activity extends AppCompatActivity {
         String phonenumber = input_phonenumber.getEditText().getText().toString();
         String email = input_email.getEditText().getText().toString();
         String password = input_password.getEditText().getText().toString();
-        UserHelperClass helperClass = new UserHelperClass(fullname, username, email, phonenumber, password);
+        User helperClass = new User(fullname, username, email, phonenumber, password);
 
         // Check if email, username, and phone number already exist
         checkExistingUser(email, username, phonenumber, helperClass);
@@ -177,7 +180,7 @@ public class signup_activity extends AppCompatActivity {
 
     }
 
-    private void checkExistingUser(String email, String username, String phonenumber, UserHelperClass user) {
+    private void checkExistingUser(String email, String username, String phonenumber, User user) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
         Query checkUser = reference.orderByChild("username").equalTo(username);
 
@@ -246,22 +249,40 @@ public class signup_activity extends AppCompatActivity {
         });
     }
 
-    private void registerNewUser(UserHelperClass user) {
+    private void registerNewUser(User user) {
         // Register the new user
-        reference.child(user.getUsername()).setValue(user)
-                .addOnCompleteListener(new OnCompleteListener<Void>() {
+        FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
+                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
-                    public void onComplete(@NonNull Task<Void> task) {
+                    public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            // Data has been successfully written to the database
-                            Toast.makeText(signup_activity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                            Intent intent = new Intent(getApplicationContext(), login_activity.class);
-                            startActivity(intent);
+                            // Người dùng đã được tạo thành công
+                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                            String userId = firebaseUser.getUid();
+
+                            // Thêm người dùng vào Realtime Database với UID làm key
+                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
+                            databaseReference.child(userId).setValue(user)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                // Dữ liệu đã được ghi thành công vào cơ sở dữ liệu
+                                                Toast.makeText(signup_activity.this, "Registration successful", Toast.LENGTH_SHORT).show();
+                                                Intent intent = new Intent(getApplicationContext(), login_activity.class);
+                                                startActivity(intent);
+                                            } else {
+                                                // Xử lý lỗi khi thêm vào Realtime Database
+                                                Toast.makeText(signup_activity.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                                            }
+                                            progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
+                                        }
+                                    });
                         } else {
-                            // Handle the error
+                            // Xử lý lỗi khi tạo người dùng
                             Toast.makeText(signup_activity.this, "Registration failed", Toast.LENGTH_SHORT).show();
+                            progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
                         }
-                        progressBar.setVisibility(View.GONE); // Hide the ProgressBar
                     }
                 });
     }

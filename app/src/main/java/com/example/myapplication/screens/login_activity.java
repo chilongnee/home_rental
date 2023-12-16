@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.screens;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
@@ -15,10 +15,9 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.google.android.gms.tasks.OnCompleteListener;
-import com.google.android.gms.tasks.Task;
+import com.example.myapplication.Dashboard;
+import com.example.myapplication.R;
 import com.google.android.material.textfield.TextInputLayout;
-import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DataSnapshot;
@@ -147,6 +146,7 @@ public class login_activity extends AppCompatActivity {
                         String phoneNumberDB = snapshot.child(userEnteredUsername).child("phonenumber").getValue(String.class);
                         String usernameDB = snapshot.child(userEnteredUsername).child("username").getValue(String.class);
                         Intent intent = new Intent(login_activity.this, Dashboard.class);
+                        intent.putExtra("currentUserUid", snapshot.child(userEnteredUsername).child("userUid").getValue(String.class));
                         startActivity(intent);
                     } else {
                         input_password.setError("Wrong password");

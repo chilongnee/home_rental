@@ -1,9 +1,9 @@
 package com.example.myapplication.model;
 
-public class UserHelperClass {
+public class User {
     String fullname, username, email, phonenumber, password;
-        public UserHelperClass(){};
-        public UserHelperClass(String fullname, String username, String email, String phonenumber, String password) {
+        public User(){};
+        public User(String fullname, String username, String email, String phonenumber, String password) {
             this.fullname = fullname;
             this.username = username;
             this.email = email;
