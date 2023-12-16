@@ -1,4 +1,4 @@
-package com.example.myapplication;
+package com.example.myapplication.model;
 
 public class UserHelperClass {
     String fullname, username, email, phonenumber, password;
