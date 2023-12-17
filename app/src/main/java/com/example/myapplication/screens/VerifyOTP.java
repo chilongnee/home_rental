@@ -130,7 +130,7 @@ public class VerifyOTP extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            User user = new User(fullname, username, email, password, address, gender, date, phonenumber);
+                            User user = new User(fullname, username, email, password, address, gender, date, phonenumber, null);
                             registerNewUser(user);
                             Toast.makeText(VerifyOTP.this, "Verification completed!", Toast.LENGTH_SHORT).show();
                         } else {

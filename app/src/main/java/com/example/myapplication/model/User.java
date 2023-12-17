@@ -1,7 +1,7 @@
 package com.example.myapplication.model;
 
 public class User {
-    String fullname, username, email, password, address, gender, date, phonenumber;
+    String fullname, username, email, password, address, gender, date, phonenumber, avatarUrl;
         public User(){};
 
     public String getAddress() {
@@ -20,6 +20,14 @@ public class User {
         this.gender = gender;
     }
 
+    public String getAvatarUrl() {
+        return avatarUrl;
+    }
+
+    public void setAvatarUrl(String avatarUrl) {
+        this.avatarUrl = avatarUrl;
+    }
+
     public String getDate() {
         return date;
     }
@@ -36,7 +44,7 @@ public class User {
         this.phonenumber = phonenumber;
     }
 
-    public User(String fullname, String username, String email, String password, String address, String gender, String date, String phonenumber) {
+    public User(String fullname, String username, String email, String password, String address, String gender, String date, String phonenumber, String avatarUrl) {
             this.fullname = fullname;
             this.username = username;
             this.email = email;

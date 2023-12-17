@@ -48,10 +48,10 @@
             android:name=".screens.login_activity"
             android:exported="false" />
         <activity
-            android:name=".Dashboard"
+            android:name=".screens.Dashboard"
             android:exported="false" />
         <activity
-            android:name=".MainActivity"
+            android:name=".screens.MainActivity"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

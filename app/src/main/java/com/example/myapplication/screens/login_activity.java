@@ -14,7 +14,6 @@ import android.widget.ProgressBar;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.example.myapplication.Dashboard;
 import com.example.myapplication.R;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
@@ -120,9 +119,13 @@ public class login_activity extends AppCompatActivity {
                 if (snapshot.exists()) {
                     String userId = snapshot.getChildren().iterator().next().getKey(); // Get the user ID
                     String passwordDB = snapshot.child(userId).child("password").getValue(String.class);
+                    String fullname = snapshot.child(userId).child("fullname").getValue(String.class);
+                    String avatarUrl = snapshot.child(userId).child("avatarUrl").getValue(String.class);
                     if (passwordDB != null && passwordDB.equals(userEnteredPassword)) {
                         // Password matched, proceed with login
                         Intent intent = new Intent(login_activity.this, Dashboard.class);
+                        intent.putExtra("fullname", fullname);
+                        intent.putExtra("avatarUrl", avatarUrl);
                         startActivity(intent);
                         finish();
                     } else {
