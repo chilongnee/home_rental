@@ -22,10 +22,6 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.squareup.picasso.Picasso;
 
-/**
- * A simple {@link Fragment} subclass.
- * create an instance of this fragment.
- */
 public class BlogsFragment extends Fragment {
 
     private RecyclerView recyclerView;

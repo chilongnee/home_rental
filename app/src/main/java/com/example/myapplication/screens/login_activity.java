@@ -3,10 +3,9 @@ package com.example.myapplication.screens;
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
-import android.app.ActivityOptions;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Pair;
+import android.util.Log;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.Button;
@@ -34,17 +33,19 @@ public class login_activity extends AppCompatActivity {
     TextInputLayout input_username, input_password;
     ProgressBar progressBar;
     private FirebaseAuth mAuth;
+
     @Override
     public void onStart() {
         super.onStart();
-        // Check if user is signed in (non-null) and update UI accordingly.
+        // Check if the user is already signed in and redirect to Dashboard if true
         FirebaseUser currentUser = mAuth.getCurrentUser();
-        if(currentUser != null){
+        if (currentUser != null) {
             Intent intent = new Intent(getApplicationContext(), Dashboard.class);
             startActivity(intent);
             finish();
         }
     }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -65,33 +66,22 @@ public class login_activity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(login_activity.this, signup_activity.class);
-                Pair[] pairs = new Pair[7];
-
-                pairs[0] = new Pair<View, String>(img_homeicon, "logo_image");
-                pairs[1] = new Pair<View, String>(tv_logoname, "logo_text");
-                pairs[2] = new Pair<View, String>(tv_logoname, "logo_desc");
-                pairs[3] = new Pair<View, String>(input_username, "username_tran");
-                pairs[4] = new Pair<View, String>(input_password, "password_tran");
-                pairs[5] = new Pair<View, String>(btn_signin, "button_tran");
-                pairs[6] = new Pair<View, String>(btn_signup, "login_signup_tran");
-
-                ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(login_activity.this, pairs);
-                startActivity(intent, options.toBundle());
+                startActivity(intent);
             }
         });
+
         btn_signin.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                signIn(v);
+                signIn();
             }
         });
-
     }
 
-    private Boolean validateEmail() {
-        String val = input_username.getEditText().getText().toString();
-        if (val.isEmpty()){
-            input_username.setError("Field is not empty");
+    private boolean validateEmail() {
+        String val = input_username.getEditText().getText().toString().trim();
+        if (val.isEmpty()) {
+            input_username.setError("Field is required");
             return false;
         } else {
             input_username.setError(null);
@@ -99,10 +89,11 @@ public class login_activity extends AppCompatActivity {
             return true;
         }
     }
-    private Boolean validatePassword() {
-        String val = input_password.getEditText().getText().toString();
-        if (val.isEmpty()){
-            input_password.setError("Field is not empty");
+
+    private boolean validatePassword() {
+        String val = input_password.getEditText().getText().toString().trim();
+        if (val.isEmpty()) {
+            input_password.setError("Field is required");
             return false;
         } else {
             input_password.setError(null);
@@ -111,18 +102,10 @@ public class login_activity extends AppCompatActivity {
         }
     }
 
-    public void signIn(View view) {
-        progressBar.setVisibility(view.VISIBLE);
-        if(!validateEmail() | !validatePassword()) {
-            progressBar.setVisibility(view.GONE);
-            return;
-        } else {
-            isUser(view);
-        }
+    private void signIn() {
+        progressBar.setVisibility(View.VISIBLE);
 
-    }
 
-    private void isUser(View view) {
         String userEnteredUsername = input_username.getEditText().getText().toString();
         String userEnteredPassword = input_password.getEditText().getText().toString();
 
@@ -132,27 +115,31 @@ public class login_activity extends AppCompatActivity {
         checkUser.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot snapshot) {
-                progressBar.setVisibility(view.GONE);
-                if (snapshot.exists()) {
-                    input_username.setError(null);
-                    input_username.setErrorEnabled(false);
-                    String passwordDB = snapshot.child(userEnteredUsername).child("password").getValue(String.class);
+               // progressBar.setVisibility(View.GONE);
 
-                    if (passwordDB.equals(userEnteredPassword)) {
-                        input_password.setError(null);
-                        input_password.setErrorEnabled(false);
-                        String fullnameDB = snapshot.child(userEnteredUsername).child("fullname").getValue(String.class);
-                        String emailDB = snapshot.child(userEnteredUsername).child("email").getValue(String.class);
-                        String phoneNumberDB = snapshot.child(userEnteredUsername).child("phonenumber").getValue(String.class);
-                        String usernameDB = snapshot.child(userEnteredUsername).child("username").getValue(String.class);
+                if (snapshot.exists()) {
+                    String userId = snapshot.getChildren().iterator().next().getKey(); // Get the user ID
+                    String passwordDB = snapshot.child(userId).child("password").getValue(String.class);
+                    if (passwordDB != null && passwordDB.equals(userEnteredPassword)) {
+                        // Password matched, proceed with login
                         Intent intent = new Intent(login_activity.this, Dashboard.class);
-                        intent.putExtra("currentUserUid", snapshot.child(userEnteredUsername).child("userUid").getValue(String.class));
                         startActivity(intent);
+                        finish();
                     } else {
-                        input_password.setError("Wrong password");
-                        input_password.requestFocus();
+                        if (passwordDB == null) {
+                            // Handle the case where passwordDB is null
+                            Log.d("Debug", "Password not found in the database for the specified user");
+                            Toast.makeText(login_activity.this, "Password not found in the database", Toast.LENGTH_SHORT).show();
+                        } else {
+                            // Incorrect password handling
+                            input_password.setError("Incorrect password");
+                            input_password.requestFocus();
+                            Toast.makeText(login_activity.this, "Incorrect password. Please try again.", Toast.LENGTH_SHORT).show();
+                        }
                     }
+
                 } else {
+                    // User does not exist
                     Toast.makeText(login_activity.this, "No such user exists", Toast.LENGTH_SHORT).show();
                     input_username.requestFocus();
                 }
@@ -160,7 +147,8 @@ public class login_activity extends AppCompatActivity {
 
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
-
+                progressBar.setVisibility(View.GONE);
+                Toast.makeText(login_activity.this, "Database Error", Toast.LENGTH_SHORT).show();
             }
         });
     }

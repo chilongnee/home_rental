@@ -32,15 +32,14 @@ import com.google.firebase.database.ValueEventListener;
 public class signup_activity extends AppCompatActivity {
     ImageView img_homeicon;
     TextView tv_logoname;
-    TextView tv_slogane;
-    Button btn_signup, btn_login;
-    TextInputLayout input_fullname, input_username, input_password, input_phonenumber, input_email;
+    TextView tv_slogan;
+    Button btn_next, btn_login;
+    TextInputLayout input_fullname, input_username, input_password, input_address, input_email;
     private FirebaseAuth mAuth;
     ProgressBar progressBar;
     FirebaseDatabase rootNode;
     DatabaseReference reference;
-// ...
-// Initialize Firebase Auth
+
 
 
     @Override
@@ -49,20 +48,23 @@ public class signup_activity extends AppCompatActivity {
         setContentView(R.layout.activity_signup);
         img_homeicon = findViewById(R.id.img_homeicon);
         tv_logoname = findViewById(R.id.tv_logoname);
-        tv_slogane = findViewById(R.id.tv_slogan);
-        btn_signup = findViewById(R.id.btn_signup);
+        tv_slogan = findViewById(R.id.tv_slogan);
+        btn_next = findViewById(R.id.btn_next);
         btn_login = findViewById(R.id.btn_login);
         input_fullname = findViewById(R.id.input_fullname);
         input_username = findViewById(R.id.input_username);
         input_email = findViewById(R.id.input_email);
-        input_phonenumber = findViewById(R.id.input_phonenumber);
+        input_address = findViewById(R.id.input_address);
         input_password = findViewById(R.id.input_password);
         progressBar = findViewById(R.id.progressBar);
         mAuth = FirebaseAuth.getInstance();
-        btn_signup.setOnClickListener(new View.OnClickListener() {
+        btn_next.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                registerUser(v);
+                String username = input_username.getEditText().getText().toString();
+                String email = input_email.getEditText().getText().toString();
+                progressBar.setVisibility(View.VISIBLE);
+                checkExistingnUser(username, email, v);
             }
         });
         btn_login.setOnClickListener(new View.OnClickListener() {
@@ -73,12 +75,45 @@ public class signup_activity extends AppCompatActivity {
                 Pair[] pairs = new Pair[3];
                 pairs[0] =  new Pair<View, String>(img_homeicon, "logo_image");
                 pairs[1] =  new Pair<View, String>(tv_logoname, "logo_text");
-                pairs[2] =  new Pair<View, String>(tv_slogane, "logo_desc");
+                pairs[2] =  new Pair<View, String>(tv_slogan, "logo_desc");
                 ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(signup_activity.this, pairs);
                 startActivity(intent, options.toBundle());
             }
         });
     }
+
+    private void callNextSignupScreen(View view) {
+
+
+       if (!validateName() | !validateUsername() | !validateEmail() | !validatePassword() | !validateAddress()) {
+            progressBar.setVisibility(View.GONE);
+            return;
+        }
+
+        Intent intent = new Intent(signup_activity.this, signup2_activity.class);
+
+        Pair[] pairs = new Pair[5];
+        pairs[0] =  new Pair<View, String>(img_homeicon, "logo_image");
+        pairs[1] =  new Pair<View, String>(tv_logoname, "logo_desc");
+        pairs[2] =  new Pair<View, String>(tv_slogan, "logo_text");
+        pairs[3] =  new Pair<View, String>(btn_next, "button_tran");
+        pairs[4] =  new Pair<View, String>(btn_login, "login_signup_tran");
+
+
+        ActivityOptions options = ActivityOptions.makeSceneTransitionAnimation(signup_activity.this, pairs);
+        String fullname = input_fullname.getEditText().getText().toString();
+        String email = input_email.getEditText().getText().toString();
+        String username = input_username.getEditText().getText().toString();
+        String password = input_password.getEditText().getText().toString();
+        String address = input_address.getEditText().getText().toString();
+        intent.putExtra("fullname", fullname);
+        intent.putExtra("email", email);
+        intent.putExtra("username", username);
+        intent.putExtra("password", password);
+        intent.putExtra("address", address);
+        startActivity(intent, options.toBundle());
+    }
+
     private Boolean validateName() {
         String val = input_fullname.getEditText().getText().toString();
         if (val.isEmpty()){
@@ -123,17 +158,7 @@ public class signup_activity extends AppCompatActivity {
             return true;
         }
     }
-    private Boolean validatePhone() {
-        String val = input_phonenumber.getEditText().getText().toString();
-        if (val.isEmpty()){
-            input_phonenumber.setError("Field is not empty");
-            return false;
-        } else {
-            input_phonenumber.setError(null);
-            input_phonenumber.setErrorEnabled(false);
-            return true;
-        }
-    }
+
     private Boolean validatePassword() {
         String val = input_password.getEditText().getText().toString();String passwordVal = "^(?=.*[0-9])" +           // Require at least one digit
                 "(?=.*[a-z])" +              // Require at least one lowercase letter
@@ -155,39 +180,21 @@ public class signup_activity extends AppCompatActivity {
             return true;
         }
     }
-
-    public void registerUser(View view) {
-        progressBar.setVisibility(View.VISIBLE);
-
-        if (!validateName() | !validateUsername() | !validateEmail() | !validatePhone() | !validatePassword()) {
-            progressBar.setVisibility(View.GONE);
-            return;
+    private Boolean validateAddress() {
+        String val = input_address.getEditText().getText().toString();
+        if (val.isEmpty()){
+            input_address.setError("Field is not empty");
+            return false;
+        } else {
+            input_address.setError(null);
+            input_address.setErrorEnabled(false);
+            return true;
         }
-
-        rootNode = FirebaseDatabase.getInstance();
-        reference = rootNode.getReference("users");
-
-        String fullname = input_fullname.getEditText().getText().toString();
-        String username = input_username.getEditText().getText().toString();
-        String phonenumber = input_phonenumber.getEditText().getText().toString();
-        String email = input_email.getEditText().getText().toString();
-        String password = input_password.getEditText().getText().toString();
-        User helperClass = new User(fullname, username, email, phonenumber, password);
-
-        // Check if email, username, and phone number already exist
-        checkExistingUser(email, username, phonenumber, helperClass);
-
-
     }
-
-    private void checkExistingUser(String email, String username, String phonenumber, User user) {
+    private void checkExistingnUser(String username, String email, View view) {
         DatabaseReference reference = FirebaseDatabase.getInstance().getReference("users");
-        Query checkUser = reference.orderByChild("username").equalTo(username);
-
         Query emailRef = reference.orderByChild("email").equalTo(email);
         Query usernameRef = reference.orderByChild("username").equalTo(username);
-        Query phoneNumberRef = reference.orderByChild("phonenumber").equalTo(phonenumber);
-
         emailRef.addListenerForSingleValueEvent(new ValueEventListener() {
             @Override
             public void onDataChange(@NonNull DataSnapshot emailSnapshot) {
@@ -196,7 +203,6 @@ public class signup_activity extends AppCompatActivity {
                     Toast.makeText(signup_activity.this, "Email already exists", Toast.LENGTH_SHORT).show();
                     progressBar.setVisibility(View.GONE);
                 } else {
-                    // Check if username already exists
                     usernameRef.addListenerForSingleValueEvent(new ValueEventListener() {
                         @Override
                         public void onDataChange(@NonNull DataSnapshot usernameSnapshot) {
@@ -205,86 +211,26 @@ public class signup_activity extends AppCompatActivity {
                                 Toast.makeText(signup_activity.this, "Username already exists", Toast.LENGTH_SHORT).show();
                                 progressBar.setVisibility(View.GONE);
                             } else {
-                                // Check if phone number already exists
-                                phoneNumberRef.addListenerForSingleValueEvent(new ValueEventListener() {
-                                    @Override
-                                    public void onDataChange(@NonNull DataSnapshot phoneSnapshot) {
-                                        if (phoneSnapshot.exists()) {
-                                            // Phone number already exists
-                                            Toast.makeText(signup_activity.this, "Phone number already exists", Toast.LENGTH_SHORT).show();
-                                            progressBar.setVisibility(View.GONE);
-                                        } else {
-                                            // No existing user, proceed with registration
-                                            registerNewUser(user);
-                                        }
-                                    }
 
+                                            callNextSignupScreen(view);
+                                            progressBar.setVisibility(View.GONE);
+                                        }
+                                }
                                     @Override
                                     public void onCancelled(@NonNull DatabaseError error) {
-                                        Toast.makeText(signup_activity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                                         progressBar.setVisibility(View.GONE);
                                     }
-
-
                                 });
                             }
                         }
 
                         @Override
                         public void onCancelled(@NonNull DatabaseError error) {
-                            Toast.makeText(signup_activity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
                             progressBar.setVisibility(View.GONE);
                         }
-
                     });
                 }
-            }
 
-            @Override
-            public void onCancelled(@NonNull DatabaseError error) {
-                // Handle database error
-                Toast.makeText(signup_activity.this, "Database error: " + error.getMessage(), Toast.LENGTH_SHORT).show();
-                progressBar.setVisibility(View.GONE);
-            }
-        });
-    }
 
-    private void registerNewUser(User user) {
-        // Register the new user
-        FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
-                .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
-                    @Override
-                    public void onComplete(@NonNull Task<AuthResult> task) {
-                        if (task.isSuccessful()) {
-                            // Người dùng đã được tạo thành công
-                            FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
-                            String userId = firebaseUser.getUid();
-
-                            // Thêm người dùng vào Realtime Database với UID làm key
-                            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");
-                            databaseReference.child(userId).setValue(user)
-                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                        @Override
-                                        public void onComplete(@NonNull Task<Void> task) {
-                                            if (task.isSuccessful()) {
-                                                // Dữ liệu đã được ghi thành công vào cơ sở dữ liệu
-                                                Toast.makeText(signup_activity.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                                                Intent intent = new Intent(getApplicationContext(), login_activity.class);
-                                                startActivity(intent);
-                                            } else {
-                                                // Xử lý lỗi khi thêm vào Realtime Database
-                                                Toast.makeText(signup_activity.this, "Registration failed", Toast.LENGTH_SHORT).show();
-                                            }
-                                            progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
-                                        }
-                                    });
-                        } else {
-                            // Xử lý lỗi khi tạo người dùng
-                            Toast.makeText(signup_activity.this, "Registration failed", Toast.LENGTH_SHORT).show();
-                            progressBar.setVisibility(View.GONE); // Ẩn ProgressBar
-                        }
-                    }
-                });
-    }
 
 }

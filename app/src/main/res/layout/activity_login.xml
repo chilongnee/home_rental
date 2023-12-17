@@ -7,7 +7,7 @@
     android:orientation="vertical"
     tools:context=".screens.login_activity"
     android:padding="20dp"
-    android:background="#fff">
+    android:background="#fece2f">
     <ImageView
         android:id="@+id/img_homeicon"
         android:transitionName="logo_image"
@@ -79,6 +79,7 @@
             android:textColor="#000" />
         <Button
             android:transitionName="button_tran"
+            style="@style/Widget.MaterialComponents.Button"
             android:id="@+id/btn_signin"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
