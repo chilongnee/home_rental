@@ -169,7 +169,7 @@ public class VerifyOTP extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            User user = new User(fullname, username, email, password, address, gender, date, phonenumber);
+                            User user = new User(fullname, username, email, password, address, gender, date, phonenumber, null);
                             registerNewUser(user);
                             Toast.makeText(VerifyOTP.this, "Verification completed!", Toast.LENGTH_SHORT).show();
                         } else {
@@ -188,7 +188,7 @@ public class VerifyOTP extends AppCompatActivity {
                 .addOnCompleteListener(new OnCompleteListener<AuthResult>() {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
-                      //  progressBar.setVisibility(View.GONE); // Always hide the ProgressBar
+                        //  progressBar.setVisibility(View.GONE); // Always hide the ProgressBar
 
                         if (task.isSuccessful()) {
                             // User has been successfully created
@@ -205,9 +205,13 @@ public class VerifyOTP extends AppCompatActivity {
                                                 if (task.isSuccessful()) {
                                                     // Data has been successfully written to the database
                                                     Toast.makeText(VerifyOTP.this, "Registration successful", Toast.LENGTH_SHORT).show();
-                                                    Intent intent = new Intent(getApplicationContext(), login_activity.class);
+                                                    FirebaseAuth.getInstance().signOut();
+
+                                                    // Redirect to the login screen or another appropriate activity
+                                                    Intent intent = new Intent(VerifyOTP.this, login_activity.class);
+                                                    intent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
                                                     startActivity(intent);
-                                                    finish(); // Finish the current activity
+                                                    finish();
                                                 } else {
                                                     // Handle the error when adding to Realtime Database
                                                     Toast.makeText(VerifyOTP.this, "Registration failed", Toast.LENGTH_SHORT).show();

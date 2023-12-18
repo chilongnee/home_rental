@@ -3,8 +3,7 @@
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="horizontal"
-    android:padding="16dp"
-    android:background="@drawable/black_border">
+    android:padding="16dp">
 
         <ImageView
             android:id="@+id/roomImageView"
@@ -61,6 +60,4 @@
                     android:layout_gravity="bottom|end"
                     android:layout_marginTop="8dp" />
         </LinearLayout>
-
 </LinearLayout>
-

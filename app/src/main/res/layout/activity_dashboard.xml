@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context=".Dashboard">
+    tools:context=".screens.Dashboard">
 
     <!-- Đặt RecyclerView trong NestedScrollView để có thể cuộn nếu cần -->
     <androidx.core.widget.NestedScrollView
