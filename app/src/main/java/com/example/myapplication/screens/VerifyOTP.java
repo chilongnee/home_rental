@@ -16,6 +16,7 @@ import com.chaos.view.PinView;
 import com.example.myapplication.R;
 
 import com.example.myapplication.model.User;
+import com.example.myapplication.ultis.AndroidUtil;
 import com.google.android.gms.tasks.*;
 
 
@@ -25,6 +26,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthInvalidCredentialsException;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.PhoneAuthCredential;
+import com.google.firebase.auth.PhoneAuthOptions;
 import com.google.firebase.auth.PhoneAuthProvider;
 
 import com.google.firebase.database.DatabaseReference;
@@ -48,10 +50,16 @@ public class VerifyOTP extends AppCompatActivity {
     String date;
     String phonenumber;
 
+    Long timeoutSeconds = 60L;
+    String verificationCode;
+    PhoneAuthProvider.ForceResendingToken resendingToken;
+    FirebaseAuth mAuth = FirebaseAuth.getInstance();
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_verify_otp);
+
         btn_verify = findViewById(R.id.btn_verify);
         pinFromUser = findViewById(R.id.pinFromUser);
         fullname = getIntent().getStringExtra("fullname");
@@ -62,9 +70,11 @@ public class VerifyOTP extends AppCompatActivity {
         gender = getIntent().getStringExtra("gender");
         date = getIntent().getStringExtra("date");
         phonenumber = getIntent().getStringExtra("phonenumber");
+
+        Toast.makeText(VerifyOTP.this, " " + phonenumber, Toast.LENGTH_SHORT).show();
         Log.d("phone", phonenumber);
         progressBar = findViewById(R.id.progressBar);
-        sendVerificationCodeToUser(phonenumber);
+        sendVerificationCodeToUser(phonenumber, false);
         btn_verify.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -75,14 +85,42 @@ public class VerifyOTP extends AppCompatActivity {
     }
 
 
-    private void sendVerificationCodeToUser(String phonenumber) {
+    private void sendVerificationCodeToUser(String phonenumber, boolean isResend) {
+        /*
         PhoneAuthProvider.getInstance().verifyPhoneNumber(
                 phonenumber,
                 60L,
                 TimeUnit.SECONDS,
                 this,
                 mCallbacks);
+         */
 
+        PhoneAuthOptions.Builder builder =
+                PhoneAuthOptions.newBuilder(mAuth)
+                        .setPhoneNumber(phonenumber)
+                        .setTimeout(timeoutSeconds, TimeUnit.SECONDS)
+                        .setActivity(this)
+                        .setCallbacks(new PhoneAuthProvider.OnVerificationStateChangedCallbacks() {
+                            @Override
+                            public void onVerificationCompleted(@NonNull PhoneAuthCredential phoneAuthCredential) {
+                                signInWithPhoneAuthCredential(phoneAuthCredential);
+                            }
+
+                            @Override
+                            public void onVerificationFailed(@NonNull FirebaseException e) {
+                                Toast.makeText(VerifyOTP.this, "OTP verification failed", Toast.LENGTH_SHORT).show();
+                            }
+
+                            @Override
+                            public void onCodeSent(@NonNull String s, @NonNull PhoneAuthProvider.ForceResendingToken forceResendingToken) {
+                                super.onCodeSent(s, forceResendingToken);
+                                verificationCode = s;
+                                resendingToken = forceResendingToken;
+                                AndroidUtil.showToast(getApplicationContext(), "OTP set successfully");
+                            }
+                        });
+        PhoneAuthOptions options = builder.build();
+        PhoneAuthProvider.verifyPhoneNumber(options);
     }
 
     private PhoneAuthProvider.OnVerificationStateChangedCallbacks mCallbacks =
@@ -100,19 +138,20 @@ public class VerifyOTP extends AppCompatActivity {
                     if (code != null) {
                         pinFromUser.setText(code);
                         verifyCode(code);
+                        Log.d("OTP", "Verification completed with code: " + code);
                     }
                 }
 
                 @Override
                 public void onVerificationFailed(@NonNull FirebaseException e) {
-                    Toast.makeText(VerifyOTP.this, e.getMessage(), Toast.LENGTH_SHORT).show();
-                    Log.w("Phone", "onVerificationFailed", e);
+                    Toast.makeText(VerifyOTP.this, "OTP verification failed: " + e.getMessage(), Toast.LENGTH_SHORT).show();
+                    Log.e("VerificationFailed", e.getMessage());
                 }
 
             };
 
     private void verifyCode(String code) {
-        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(codeBySystem, code);
+        PhoneAuthCredential credential = PhoneAuthProvider.getCredential(verificationCode, code);
         signInWithPhoneAuthCredential(credential);
 
     }

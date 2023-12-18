@@ -8,14 +8,18 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.example.myapplication.model.Room;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.firebase.ui.database.FirebaseRecyclerAdapter;
@@ -42,7 +46,11 @@ public class BlogsFragment extends Fragment {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
             currentUserUid = getArguments().getString("currentUserUid");
+        } else {
+            currentUserUid = "defaultUserId";
         }
+
+        Log.d("Debug", "currentUserUid: " + currentUserUid);
     }
 
     @Override
@@ -53,6 +61,14 @@ public class BlogsFragment extends Fragment {
         recyclerView = view.findViewById(R.id.recyclerView);
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         databaseReference = FirebaseDatabase.getInstance().getReference("rooms");
+
+        FirebaseAuth auth = FirebaseAuth.getInstance();
+        FirebaseUser currentUser = auth.getCurrentUser();
+
+        if (currentUser != null) {
+            currentUserUid = currentUser.getUid();
+        } else {
+        }
 
         FirebaseRecyclerOptions<Room> options =
                 new FirebaseRecyclerOptions.Builder<Room>()

@@ -1,2 +1,11 @@
-package com.example.myapplication.ultis;public class AndroidUtil {
+package com.example.myapplication.ultis;
+
+import android.content.Context;
+import android.widget.Toast;
+
+public class AndroidUtil {
+    public static void showToast(Context context, String message) {
+        Toast.makeText(context, message, Toast.LENGTH_SHORT).show();
+    }
 }
+

@@ -50,8 +50,6 @@ public class AddBlogs extends AppCompatActivity {
         chooseImageButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Gọi phương thức để chọn hình ảnh từ máy
-                // (Bạn cần triển khai phương thức này)
                 chooseImage();
             }
         });
@@ -59,7 +57,6 @@ public class AddBlogs extends AppCompatActivity {
         saveButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                // Gọi phương thức để lưu thông tin phòng (Bạn cần triển khai phương thức này)
                 saveRoom();
             }
         });
@@ -101,13 +98,10 @@ public class AddBlogs extends AppCompatActivity {
         double price = Double.parseDouble(priceStr);
 
         if (currentUser != null) {
-            // Lấy UID của người dùng hiện tại
             String userUid = currentUser.getUid();
 
-            // Tạo đối tượng Room từ dữ liệu người dùng và thêm thông tin đăng nhập
             Room room = new Room(title, description, price, location, selectedImageUri.toString(), userUid);
 
-            // Đẩy đối tượng Room lên Firebase Realtime Database
             String roomId = databaseReference.push().getKey();
             databaseReference.child(roomId).setValue(room).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
