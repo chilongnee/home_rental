@@ -15,6 +15,8 @@ import androidx.cardview.widget.CardView;
 import androidx.fragment.app.Fragment;
 
 import com.bumptech.glide.Glide;
+import com.example.myapplication.screens.EditProfile;
+import com.example.myapplication.screens.MyProfile;
 import com.example.myapplication.screens.login_activity;
 import com.google.firebase.auth.FirebaseAuth;
 
@@ -25,7 +27,14 @@ public class AccountFragment extends Fragment {
     TextView tv_fullname;
     private String fullName;
     String avatarUrl;
+    String email;
+    String address;
+    String phonenumber;
+    String date;
+    String gender;
+    String password;
     CircleImageView profile_image;
+    CardView btn_editProfile;
 
     public void setFullName(String fullName) {
         this.fullName = fullName;
@@ -33,6 +42,16 @@ public class AccountFragment extends Fragment {
     public void setAvatarUrl(String avatarUrl){
         this.avatarUrl = avatarUrl;
     }
+    public void setEmail(String email){this.email = email;}
+    public void setAddress(String address) {this.address = address;}
+
+    public void setPhoneNumber(String phonenumber) {this.phonenumber = phonenumber;}
+
+    public void setGender(String gender) {this.gender = gender;}
+
+    public void setDate(String date) {this.date = date;}
+
+    public void setPassword(String password) {this.password = password;};
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -40,6 +59,22 @@ public class AccountFragment extends Fragment {
         tv_fullname = view.findViewById(R.id.tv_fullname);
         profile_image = view.findViewById(R.id.profile_image);
         btn_logout = view.findViewById(R.id.btn_logout);
+        btn_editProfile = view.findViewById(R.id.btn_editProfile);
+        btn_editProfile.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), MyProfile.class);
+                intent.putExtra("fullname", fullName);
+                intent.putExtra("email", email);
+                intent.putExtra("password", password);
+                intent.putExtra("phonenumber", phonenumber);
+                intent.putExtra("gender", gender);
+                intent.putExtra("date", date);
+                intent.putExtra("address", address);
+                intent.putExtra("avatarUrl", avatarUrl);
+                startActivity(intent);
+            }
+        });
 
         if (this.fullName != null) {
             tv_fullname.setText(this.fullName);
@@ -69,5 +104,6 @@ public class AccountFragment extends Fragment {
 
         return view;
     }
+
 
 }

@@ -121,11 +121,23 @@ public class login_activity extends AppCompatActivity {
                     String passwordDB = snapshot.child(userId).child("password").getValue(String.class);
                     String fullname = snapshot.child(userId).child("fullname").getValue(String.class);
                     String avatarUrl = snapshot.child(userId).child("avatarUrl").getValue(String.class);
+                    String address = snapshot.child(userId).child("address").getValue(String.class);
+                    String phonenumber = snapshot.child(userId).child("phonenumber").getValue(String.class);
+                    String gender = snapshot.child(userId).child("gender").getValue(String.class);
+                    String date = snapshot.child(userId).child("date").getValue(String.class);
+                    String email = snapshot.child(userId).child("email").getValue(String.class);
+                    String password = snapshot.child(userId).child("password").getValue(String.class);
                     if (passwordDB != null && passwordDB.equals(userEnteredPassword)) {
                         // Password matched, proceed with login
                         Intent intent = new Intent(login_activity.this, Dashboard.class);
                         intent.putExtra("fullname", fullname);
                         intent.putExtra("avatarUrl", avatarUrl);
+                        intent.putExtra("address", address);
+                        intent.putExtra("phonenumber", phonenumber);
+                        intent.putExtra("gender", gender);
+                        intent.putExtra("date", date);
+                        intent.putExtra("email", email);
+                        intent.putExtra("password", password);
                         startActivity(intent);
                         finish();
                     } else {

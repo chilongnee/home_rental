@@ -48,15 +48,26 @@ public class Dashboard extends AppCompatActivity {
             }
         });
         // Set the default fragment
-        getSupportFragmentManager().beginTransaction()
-                .replace(R.id.content, new HomeFragment())
-                .commit();
+        boolean goToAccountFragment = getIntent().getBooleanExtra("goToHomeFragment", false);
 
+        if (goToAccountFragment) {
+            // Replace the current fragment with HomeFragment
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content, new AccountFragment())
+                    .commit();
+            bottomNavigationView.setSelectedItemId(R.id.btn_account);
+        } else {
+            // Set the default fragment
+            getSupportFragmentManager().beginTransaction()
+                    .replace(R.id.content, new HomeFragment())
+                    .commit();
+        }
+
+        // ...
 
         bottomNavigationView.setOnNavigationItemSelectedListener(new BottomNavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
-
 
                 // Handle item clicks using if-else
                 if (item.getItemId() == R.id.btn_home) {
@@ -69,11 +80,23 @@ public class Dashboard extends AppCompatActivity {
                 } else if (item.getItemId() == R.id.btn_account) {
                     String avatarUrl = getIntent().getStringExtra("avatarUrl");
                     String fullname = getIntent().getStringExtra("fullname");
+                    String address = getIntent().getStringExtra("address");
+                    String phonenumber = getIntent().getStringExtra("phonenumber");
+                    String gender = getIntent().getStringExtra("gender");
+                    String date = getIntent().getStringExtra("date");
+                    String email = getIntent().getStringExtra("email");
+                    String password = getIntent().getStringExtra("password");
                     selectedFragment = new AccountFragment();
                    ((AccountFragment) selectedFragment).setFullName(fullname);
                    ((AccountFragment) selectedFragment).setAvatarUrl(avatarUrl);
+                   ((AccountFragment) selectedFragment).setAddress(address);
+                   ((AccountFragment) selectedFragment).setPhoneNumber(phonenumber);
+                   ((AccountFragment) selectedFragment).setGender(gender);
+                   ((AccountFragment) selectedFragment).setDate(date);
+                   ((AccountFragment) selectedFragment).setEmail(email);
+                   ((AccountFragment) selectedFragment).setPassword(password);
                 } else {
-                    // Handle other items if needed
+
                     return false;
                 }
 
