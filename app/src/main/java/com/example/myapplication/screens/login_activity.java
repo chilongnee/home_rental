@@ -36,12 +36,14 @@ public class login_activity extends AppCompatActivity {
     @Override
     public void onStart() {
         super.onStart();
-        // Check if the user is already signed in and redirect to Dashboard if true
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
+            Log.d("LoginActivity", "User is already signed in.");
             Intent intent = new Intent(getApplicationContext(), Dashboard.class);
             startActivity(intent);
             finish();
+        } else {
+            Log.d("LoginActivity", "User is not signed in.");
         }
     }
 
@@ -163,6 +165,7 @@ public class login_activity extends AppCompatActivity {
             @Override
             public void onCancelled(@NonNull DatabaseError error) {
                 progressBar.setVisibility(View.GONE);
+                Log.e("LoginActivity", "Database Error: " + error.getMessage());
                 Toast.makeText(login_activity.this, "Database Error", Toast.LENGTH_SHORT).show();
             }
         });

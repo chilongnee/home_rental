@@ -1,5 +1,7 @@
 package com.example.myapplication.screens;
 
+import android.app.ActivityOptions;
+import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 
@@ -70,6 +72,7 @@ public class BlogsFragment extends Fragment {
         } else {
         }
 
+
         FirebaseRecyclerOptions<Room> options =
                 new FirebaseRecyclerOptions.Builder<Room>()
                         .setQuery(databaseReference.orderByChild("userUid").equalTo(currentUserUid), Room.class)
@@ -85,7 +88,9 @@ public class BlogsFragment extends Fragment {
             @Override
             public RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_item_room, parent, false);
-                return new RoomViewHolder(view);
+                RoomViewHolder viewHolder = new RoomViewHolder(view);
+
+                return viewHolder;
             }
         };
 
