@@ -1,9 +1,11 @@
 package com.example.myapplication.model;
 
 public class User {
-    String fullname, username, email, password, address, gender, date, phonenumber, avatarUrl;
-        public User(){};
-
+    String fullname, username, email, password, address, gender, date, phonenumber, avatarUrl, userId, FCMToken;
+    public User(){};
+    public String getUserId() {
+        return userId;
+    }
     public String getAddress() {
         return address;
     }
@@ -44,8 +46,9 @@ public class User {
         this.phonenumber = phonenumber;
     }
 
-    public User(String fullname, String username, String email, String password, String address, String gender, String date, String phonenumber, String avatarUrl) {
+    public User(String userId, String fullname, String username, String email, String password, String address, String gender, String date, String phonenumber, String avatarUrl, String FCMToken) {
             this.fullname = fullname;
+            this.userId = userId;
             this.username = username;
             this.email = email;
             this.address = address;
@@ -53,6 +56,8 @@ public class User {
             this.date = date;
             this.phonenumber = phonenumber;
             this.password = password;
+            this.avatarUrl = avatarUrl;
+            this.FCMToken = FCMToken;
         }
 
     public String getFullname() {

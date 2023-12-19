@@ -88,7 +88,6 @@ public class BlogsFragment extends Fragment {
                 return new RoomViewHolder(view);
             }
         };
-
         recyclerView.setAdapter(adapter);
 
         return view;

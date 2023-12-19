@@ -16,6 +16,10 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <activity
+            android:name=".screens.MessageActivity"
+            android:exported="false" />
+
+        <activity
             android:name=".screens.MyProfile"
             android:exported="false" />
         <activity
@@ -30,10 +34,6 @@
         <activity
             android:name=".screens.signup2_activity"
             android:exported="false" />
-        <activity
-            android:name=".item_room"
-            android:exported="false" />
-
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

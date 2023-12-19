@@ -31,7 +31,7 @@ import com.google.firebase.auth.PhoneAuthProvider;
 
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
-
+import com.google.firebase.messaging.FirebaseMessaging;
 
 
 import java.util.concurrent.TimeUnit;
@@ -49,9 +49,12 @@ public class VerifyOTP extends AppCompatActivity {
     String gender;
     String date;
     String phonenumber;
-
     Long timeoutSeconds = 60L;
     String verificationCode;
+    String userId;
+    String avatarUrl;
+    User user;
+    FirebaseUser firebaseUser;
     PhoneAuthProvider.ForceResendingToken resendingToken;
     FirebaseAuth mAuth = FirebaseAuth.getInstance();
 
@@ -70,7 +73,7 @@ public class VerifyOTP extends AppCompatActivity {
         gender = getIntent().getStringExtra("gender");
         date = getIntent().getStringExtra("date");
         phonenumber = getIntent().getStringExtra("phonenumber");
-
+        avatarUrl = "https://firebasestorage.googleapis.com/v0/b/phongtro-b3cc4.appspot.com/o/profile_images%2Favatar_default.png?alt=media&token=fd6fed1d-a974-46ef-a630-fc93380e971b";
         Toast.makeText(VerifyOTP.this, " " + phonenumber, Toast.LENGTH_SHORT).show();
         Log.d("phone", phonenumber);
         progressBar = findViewById(R.id.progressBar);
@@ -169,8 +172,11 @@ public class VerifyOTP extends AppCompatActivity {
                     @Override
                     public void onComplete(@NonNull Task<AuthResult> task) {
                         if (task.isSuccessful()) {
-                            User user = new User(fullname, username, email, password, address, gender, date, phonenumber, null);
+                            firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
+                            userId = firebaseUser.getUid();
+                            user = new User(userId, fullname, username, email, password, address, gender, date, phonenumber, avatarUrl, "");
                             registerNewUser(user);
+                            getFCMToken();
                             Toast.makeText(VerifyOTP.this, "Verification completed!", Toast.LENGTH_SHORT).show();
                         } else {
                             if (task.getException() instanceof FirebaseAuthInvalidCredentialsException) {
@@ -181,7 +187,18 @@ public class VerifyOTP extends AppCompatActivity {
                 });
     }
 
+    void getFCMToken(){
+        FirebaseMessaging.getInstance().getToken().addOnCompleteListener(task -> {
+            if(task.isSuccessful()){
+                String token = task.getResult();
+                DatabaseReference usersRef = FirebaseDatabase.getInstance().getReference().child("users").child(userId);
+                usersRef.child("fcmToken").setValue(token)
+                        .addOnSuccessListener(aVoid -> Toast.makeText(VerifyOTP.this, "FCM Token updated successfully!", Toast.LENGTH_SHORT).show())
+                        .addOnFailureListener(e -> Toast.makeText(VerifyOTP.this, "Failed to update FCM Token", Toast.LENGTH_SHORT).show());
 
+            }
+        });
+    }
 
     private void registerNewUser(User user) {
         FirebaseAuth.getInstance().createUserWithEmailAndPassword(user.getEmail(), user.getPassword())
@@ -194,7 +211,7 @@ public class VerifyOTP extends AppCompatActivity {
                             // User has been successfully created
                             FirebaseUser firebaseUser = FirebaseAuth.getInstance().getCurrentUser();
                             if (firebaseUser != null) {
-                                String userId = firebaseUser.getUid();
+                                //userId = firebaseUser.getUid();
 
                                 // Add user to Realtime Database with UID as the key
                                 DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("users");

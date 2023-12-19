@@ -33,6 +33,7 @@ public class Dashboard extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_dashboard);
         bottomNavigationView = findViewById(R.id.nav_view);
         btn_addblogs = findViewById(R.id.btn_addblogs);
@@ -58,6 +59,7 @@ public class Dashboard extends AppCompatActivity {
             String date = getIntent().getStringExtra("date");
             String email = getIntent().getStringExtra("email");
             String password = getIntent().getStringExtra("password");
+            String userId = getIntent().getStringExtra("userId");
             selectedFragment = new AccountFragment();
             ((AccountFragment) selectedFragment).setFullName(fullname);
             ((AccountFragment) selectedFragment).setAvatarUrl(avatarUrl);
@@ -67,6 +69,7 @@ public class Dashboard extends AppCompatActivity {
             ((AccountFragment) selectedFragment).setDate(date);
             ((AccountFragment) selectedFragment).setEmail(email);
             ((AccountFragment) selectedFragment).setPassword(password);
+            ((AccountFragment) selectedFragment).setuserId(userId);
             getSupportFragmentManager().beginTransaction()
                     .replace(R.id.content, selectedFragment)
                     .commit();
@@ -89,7 +92,10 @@ public class Dashboard extends AppCompatActivity {
                     selectedFragment = new HomeFragment();
 
                 } else if (item.getItemId() == R.id.btn_chat) {
+                    String userId = getIntent().getStringExtra("userId");
+
                     selectedFragment = new ChatFragment();
+                    ((ChatFragment) selectedFragment).setuserId(userId);
                 } else if (item.getItemId() == R.id.btn_manablogs) {
                     selectedFragment = new BlogsFragment();
                 } else if (item.getItemId() == R.id.btn_account) {
@@ -101,6 +107,7 @@ public class Dashboard extends AppCompatActivity {
                     String date = getIntent().getStringExtra("date");
                     String email = getIntent().getStringExtra("email");
                     String password = getIntent().getStringExtra("password");
+                    String userId = getIntent().getStringExtra("userId");
                     selectedFragment = new AccountFragment();
                     ((AccountFragment) selectedFragment).setFullName(fullname);
                     ((AccountFragment) selectedFragment).setAvatarUrl(avatarUrl);
@@ -110,6 +117,7 @@ public class Dashboard extends AppCompatActivity {
                     ((AccountFragment) selectedFragment).setDate(date);
                     ((AccountFragment) selectedFragment).setEmail(email);
                     ((AccountFragment) selectedFragment).setPassword(password);
+                    ((AccountFragment) selectedFragment).setuserId(userId);
                 } else {
 
                     return false;

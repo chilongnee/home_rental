@@ -15,6 +15,7 @@ import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
+import com.example.myapplication.model.User;
 import com.google.android.material.textfield.TextInputLayout;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
@@ -39,9 +40,13 @@ public class login_activity extends AppCompatActivity {
         // Check if the user is already signed in and redirect to Dashboard if true
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
+            Log.d("login", "Logged in!");
             Intent intent = new Intent(getApplicationContext(), Dashboard.class);
             startActivity(intent);
-            finish();
+            //finish();
+        }
+        else {
+            Log.d("login", "not login");
         }
     }
 
@@ -103,7 +108,9 @@ public class login_activity extends AppCompatActivity {
 
     private void signIn() {
         progressBar.setVisibility(View.VISIBLE);
-
+        if(!validateEmail() | !validatePassword()){
+            return;
+        }
 
         String userEnteredUsername = input_username.getEditText().getText().toString();
         String userEnteredPassword = input_password.getEditText().getText().toString();
@@ -127,6 +134,7 @@ public class login_activity extends AppCompatActivity {
                     String date = snapshot.child(userId).child("date").getValue(String.class);
                     String email = snapshot.child(userId).child("email").getValue(String.class);
                     String password = snapshot.child(userId).child("password").getValue(String.class);
+
                     if (passwordDB != null && passwordDB.equals(userEnteredPassword)) {
                         // Password matched, proceed with login
                         Intent intent = new Intent(login_activity.this, Dashboard.class);
@@ -138,6 +146,8 @@ public class login_activity extends AppCompatActivity {
                         intent.putExtra("date", date);
                         intent.putExtra("email", email);
                         intent.putExtra("password", password);
+                        intent.putExtra("userId", userId);
+
                         startActivity(intent);
                         finish();
                     } else {

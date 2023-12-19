@@ -41,6 +41,8 @@ dependencies {
     implementation("com.google.firebase:firebase-database:20.3.0")
     implementation ("com.squareup.picasso:picasso:2.71828")
     implementation ("com.firebaseui:firebase-ui-database:7.2.0")
+    implementation("com.google.firebase:firebase-messaging:23.4.0")
+    implementation("com.google.firebase:firebase-firestore:24.10.0")
     testImplementation("junit:junit:4.13.2")
     implementation("com.google.firebase:firebase-bom:32.7.0")
     implementation ("com.hbb20:ccp:2.5.0")
@@ -53,5 +55,9 @@ dependencies {
     implementation ("com.github.bumptech.glide:glide:4.12.0")
     annotationProcessor ("com.github.bumptech.glide:compiler:4.12.0")
     implementation ("de.hdodenhof:circleimageview:3.1.0")
+    implementation ("com.google.firebase:firebase-storage:20.3.0")
+    implementation ("com.squareup.retrofit2:retrofit:2.7.2")
+    implementation ("com.squareup.retrofit2:converter-gson:2.9.0")
+    implementation("com.squareup.okhttp3:okhttp:4.12.0")
 }
 
