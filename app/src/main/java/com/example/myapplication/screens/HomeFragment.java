@@ -32,7 +32,8 @@ public class HomeFragment extends Fragment {
 
     private RecyclerView recyclerView;
     private DatabaseReference databaseReference;
-    private FirebaseRecyclerAdapter<Room, BlogsFragment.RoomViewHolder> adapter;
+    private FirebaseRecyclerAdapter<Room, RoomViewHolder> adapter;
+
 
 
     @Override
@@ -49,17 +50,18 @@ public class HomeFragment extends Fragment {
                         .setQuery(databaseReference.orderByKey(), Room.class)
                         .build();
 
-        adapter = new FirebaseRecyclerAdapter<Room, BlogsFragment.RoomViewHolder>(options) {
+        adapter = new FirebaseRecyclerAdapter<Room, HomeFragment.RoomViewHolder>(options) {
             @Override
-            protected void onBindViewHolder(@NonNull BlogsFragment.RoomViewHolder holder, int position, @NonNull Room model) {
+            protected void onBindViewHolder(@NonNull RoomViewHolder holder, int position, @NonNull Room model) {
                 holder.bind(model);
             }
 
             @NonNull
             @Override
-            public BlogsFragment.RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
+            public RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
                 View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_item_room, parent, false);
-                return new BlogsFragment.RoomViewHolder(view);
+                RoomViewHolder viewHolder = new RoomViewHolder(view);
+                return viewHolder;
             }
         };
 
@@ -92,7 +94,7 @@ public class HomeFragment extends Fragment {
             locationTextView = itemView.findViewById(R.id.locationTextView);
             roomImageView = itemView.findViewById(R.id.roomImageView);
 
-            itemView.setOnClickListener(new View.OnClickListener() {
+            itemView.findViewById(R.id.cardView).setOnClickListener(new View.OnClickListener() {
                 @Override
                 public void onClick(View view) {
                     Toast.makeText(itemView.getContext(), "Item Clicked", Toast.LENGTH_SHORT).show();
@@ -117,14 +119,14 @@ public class HomeFragment extends Fragment {
 
         private void openRoomDetail(Context context) {
             Log.d("RoomViewHolder", "Open Room Detail");
-            Intent intent = new Intent(context, DetailRoomFragment.class);
+            Intent intent = new Intent(itemView.getContext(), DetailRoomFragment.class);
             intent.putExtra("roomId", room.getRoomId());
             intent.putExtra("title", room.getTitle());
             intent.putExtra("description", room.getDescription());
             intent.putExtra("price", room.getPrice());
             intent.putExtra("location", room.getLocation());
             intent.putExtra("imageUrl", room.getImageUrl());
-            context.startActivity(intent);
+            itemView.getContext().startActivity(intent);
         }
     }
 }
