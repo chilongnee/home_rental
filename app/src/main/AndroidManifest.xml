@@ -16,8 +16,14 @@
         android:theme="@style/Theme.MyApplication"
         tools:targetApi="31">
         <activity
+<<<<<<< HEAD
             android:name=".screens.DetailRoomFragment"
             android:exported="false" />
+=======
+            android:name=".screens.MessageActivity"
+            android:exported="false" />
+
+>>>>>>> 6c9ae7649da0bc903a305b6445a5951537c7c090
         <activity
             android:name=".screens.MyProfile"
             android:exported="false" />
@@ -33,9 +39,12 @@
         <activity
             android:name=".screens.signup2_activity"
             android:exported="false" />
+<<<<<<< HEAD
         <activity
             android:name=".item_room"
             android:exported="false" />
+=======
+>>>>>>> 6c9ae7649da0bc903a305b6445a5951537c7c090
 
         <meta-data
             android:name="com.google.android.geo.API_KEY"

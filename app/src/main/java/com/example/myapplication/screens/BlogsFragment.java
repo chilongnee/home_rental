@@ -93,7 +93,6 @@ public class BlogsFragment extends Fragment {
                 return viewHolder;
             }
         };
-
         recyclerView.setAdapter(adapter);
 
         return view;

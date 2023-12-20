@@ -20,6 +20,7 @@ import com.example.myapplication.screens.EditProfile;
 import com.example.myapplication.screens.MyProfile;
 import com.example.myapplication.screens.login_activity;
 import com.google.firebase.auth.FirebaseAuth;
+import com.squareup.picasso.Picasso;
 
 import de.hdodenhof.circleimageview.CircleImageView;
 
@@ -34,6 +35,7 @@ public class AccountFragment extends Fragment {
     String date;
     String gender;
     String password;
+    String userId;
     CircleImageView profile_image;
     CardView btn_editProfile;
 
@@ -53,6 +55,7 @@ public class AccountFragment extends Fragment {
     public void setDate(String date) {this.date = date;}
 
     public void setPassword(String password) {this.password = password;};
+    public void setuserId(String userId) {this.userId = userId;}
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
@@ -73,6 +76,7 @@ public class AccountFragment extends Fragment {
                 intent.putExtra("date", date);
                 intent.putExtra("address", address);
                 intent.putExtra("avatarUrl", avatarUrl);
+                intent.putExtra("userId", userId);
                 startActivity(intent);
             }
         });
@@ -84,8 +88,9 @@ public class AccountFragment extends Fragment {
             Glide.with(this)
                     .load(avatarUrl)
                     .into(profile_image);
+        } else {
+            Picasso.get().load(avatarUrl).into(profile_image);
         }
-
         btn_logout.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
