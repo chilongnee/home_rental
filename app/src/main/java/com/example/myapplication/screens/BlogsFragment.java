@@ -87,7 +87,7 @@ public class BlogsFragment extends Fragment {
             @NonNull
             @Override
             public RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_item_room, parent, false);
+                View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_item_room_edit_delete, parent, false);
                 RoomViewHolder viewHolder = new RoomViewHolder(view);
 
                 return viewHolder;

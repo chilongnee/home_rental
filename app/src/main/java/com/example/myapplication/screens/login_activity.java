@@ -39,22 +39,12 @@ public class login_activity extends AppCompatActivity {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
         if (currentUser != null) {
-<<<<<<< HEAD
-            Log.d("LoginActivity", "User is already signed in.");
+            Log.d("login", "Logged in!");
             Intent intent = new Intent(getApplicationContext(), Dashboard.class);
             startActivity(intent);
             finish();
         } else {
-            Log.d("LoginActivity", "User is not signed in.");
-=======
-            Log.d("login", "Logged in!");
-            Intent intent = new Intent(getApplicationContext(), Dashboard.class);
-            startActivity(intent);
-            //finish();
-        }
-        else {
             Log.d("login", "not login");
->>>>>>> 6c9ae7649da0bc903a305b6445a5951537c7c090
         }
     }
 
