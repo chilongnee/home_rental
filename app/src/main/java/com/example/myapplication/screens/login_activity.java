@@ -38,9 +38,11 @@ public class login_activity extends AppCompatActivity {
     public void onStart() {
         super.onStart();
         FirebaseUser currentUser = mAuth.getCurrentUser();
+        Toast.makeText(this, "" + currentUser, Toast.LENGTH_SHORT).show();
         if (currentUser != null) {
             Log.d("login", "Logged in!");
             Intent intent = new Intent(getApplicationContext(), Dashboard.class);
+            intent.putExtra("currentUser", currentUser);
             startActivity(intent);
             finish();
         } else {
@@ -145,7 +147,6 @@ public class login_activity extends AppCompatActivity {
                         intent.putExtra("email", email);
                         intent.putExtra("password", password);
                         intent.putExtra("userId", userId);
-
                         startActivity(intent);
                         finish();
                     } else {

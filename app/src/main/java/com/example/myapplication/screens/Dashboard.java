@@ -9,12 +9,14 @@ import androidx.recyclerview.widget.RecyclerView;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.example.myapplication.model.Room;
@@ -22,6 +24,8 @@ import com.firebase.ui.database.FirebaseRecyclerAdapter;
 import com.firebase.ui.database.FirebaseRecyclerOptions;
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
+import com.google.firebase.auth.FirebaseAuth;
+import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
 import com.google.firebase.database.FirebaseDatabase;
 import com.squareup.picasso.Picasso;
@@ -30,6 +34,7 @@ public class Dashboard extends AppCompatActivity {
     private BottomNavigationView bottomNavigationView;
     private FloatingActionButton btn_addblogs;
     private Fragment selectedFragment;
+    private FirebaseUser currentUser;
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -41,6 +46,9 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Dashboard.this, AddBlogs.class);
+                String userId = getIntent().getStringExtra("userId");
+                Toast.makeText(Dashboard.this, "" + userId, Toast.LENGTH_SHORT).show();
+                intent.putExtra("userId", userId);
                 startActivity(intent);
                 overridePendingTransition(R.anim.goup, R.anim.godown);
             }
@@ -87,7 +95,6 @@ public class Dashboard extends AppCompatActivity {
             @Override
             public boolean onNavigationItemSelected(MenuItem item) {
 
-                // Handle item clicks using if-else
                 if (item.getItemId() == R.id.btn_home) {
                     selectedFragment = new HomeFragment();
 
@@ -97,7 +104,11 @@ public class Dashboard extends AppCompatActivity {
                     selectedFragment = new ChatFragment();
                     ((ChatFragment) selectedFragment).setuserId(userId);
                 } else if (item.getItemId() == R.id.btn_manablogs) {
+                    String userId = getIntent().getStringExtra("userId");
                     selectedFragment = new BlogsFragment();
+                    Bundle bundle = new Bundle();
+                    bundle.putString("userId", userId);
+                    selectedFragment.setArguments(bundle);
                 } else if (item.getItemId() == R.id.btn_account) {
                     String avatarUrl = getIntent().getStringExtra("avatarUrl");
                     String fullname = getIntent().getStringExtra("fullname");
@@ -132,101 +143,5 @@ public class Dashboard extends AppCompatActivity {
             }
         });
 
-    }
-
-    public static class BlogsFragment extends Fragment {
-
-        private RecyclerView recyclerView;
-        private DatabaseReference databaseReference;
-        private FirebaseRecyclerAdapter<Room, RoomViewHolder> adapter;
-        private String currentUserUid;
-
-        public static BlogsFragment newInstance(String currentUserUid) {
-            BlogsFragment fragment = new BlogsFragment();
-            Bundle args = new Bundle();
-            args.putString("currentUserUid", currentUserUid);
-            fragment.setArguments(args);
-            return fragment;
-        }
-
-        @Override
-        public void onCreate(Bundle savedInstanceState) {
-            super.onCreate(savedInstanceState);
-            if (getArguments() != null) {
-                currentUserUid = getArguments().getString("currentUserUid");
-            }
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                                 Bundle savedInstanceState) {
-            View view = inflater.inflate(R.layout.fragment_blogs, container, false);
-
-            recyclerView = view.findViewById(R.id.recyclerView);
-            recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
-            databaseReference = FirebaseDatabase.getInstance().getReference("rooms");
-
-            FirebaseRecyclerOptions<Room> options =
-                    new FirebaseRecyclerOptions.Builder<Room>()
-                            .setQuery(databaseReference.orderByChild("userUid").equalTo(currentUserUid), Room.class)
-                            .build();
-
-            adapter = new FirebaseRecyclerAdapter<Room, RoomViewHolder>(options) {
-                @Override
-                protected void onBindViewHolder(@NonNull RoomViewHolder holder, int position, @NonNull Room model) {
-                    holder.bind(model);
-                }
-
-                @NonNull
-                @Override
-                public RoomViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
-                    View view = LayoutInflater.from(parent.getContext()).inflate(R.layout.activity_item_room, parent, false);
-                    return new RoomViewHolder(view);
-                }
-            };
-
-            recyclerView.setAdapter(adapter);
-
-            return view;
-        }
-
-        @Override
-        public void onStart() {
-            super.onStart();
-            adapter.startListening();
-        }
-
-        @Override
-        public void onStop() {
-            super.onStop();
-            adapter.stopListening();
-        }
-
-        public static class RoomViewHolder extends RecyclerView.ViewHolder {
-            private TextView titleTextView, descriptionTextView, priceTextView, locationTextView;
-            private ImageView roomImageView;
-
-            public RoomViewHolder(@NonNull View itemView) {
-                super(itemView);
-                titleTextView = itemView.findViewById(R.id.titleTextView);
-                descriptionTextView = itemView.findViewById(R.id.descriptionTextView);
-                priceTextView = itemView.findViewById(R.id.priceTextView);
-                locationTextView = itemView.findViewById(R.id.locationTextView);
-                roomImageView = itemView.findViewById(R.id.roomImageView);
-            }
-
-            public void bind(Room room) {
-                titleTextView.setText(room.getTitle());
-                descriptionTextView.setText(room.getDescription());
-                priceTextView.setText(room.getPrice() + "");
-                locationTextView.setText(room.getLocation());
-
-                if (room.getImageUrl() != null && !room.getImageUrl().isEmpty()) {
-                    Picasso.get().load(Uri.parse(room.getImageUrl())).into(roomImageView);
-                }else {
-                    roomImageView.setImageResource(R.drawable.home_icon);
-                }
-            }
-        }
     }
 }

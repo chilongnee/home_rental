@@ -108,6 +108,15 @@ public class AccountFragment extends Fragment {
             }
         });
 
+        TextView textView9 = view.findViewById(R.id.textView9);
+        textView9.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(getActivity(), FavoriteNews.class);
+                startActivity(intent);
+            }
+        });
+
         return view;
     }
 

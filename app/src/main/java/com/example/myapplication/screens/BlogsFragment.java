@@ -1,6 +1,8 @@
 package com.example.myapplication.screens;
 
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
@@ -14,12 +16,15 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.myapplication.R;
 import com.example.myapplication.model.Room;
+import com.google.android.gms.tasks.OnCompleteListener;
+import com.google.android.gms.tasks.Task;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.database.DatabaseReference;
@@ -33,12 +38,12 @@ public class BlogsFragment extends Fragment {
     private RecyclerView recyclerView;
     private DatabaseReference databaseReference;
     private FirebaseRecyclerAdapter<Room, RoomViewHolder> adapter;
-    private String currentUserUid;
+    private static String currentUserUid;
 
     public static BlogsFragment newInstance(String currentUserUid) {
         BlogsFragment fragment = new BlogsFragment();
         Bundle args = new Bundle();
-        args.putString("currentUserUid", currentUserUid);
+        args.putString("userId", currentUserUid);
         fragment.setArguments(args);
         return fragment;
     }
@@ -47,7 +52,7 @@ public class BlogsFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            currentUserUid = getArguments().getString("currentUserUid");
+            currentUserUid = getArguments().getString("userId");
         } else {
             currentUserUid = "defaultUserId";
         }
@@ -64,24 +69,20 @@ public class BlogsFragment extends Fragment {
         recyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
         databaseReference = FirebaseDatabase.getInstance().getReference("rooms");
 
-        FirebaseAuth auth = FirebaseAuth.getInstance();
-        FirebaseUser currentUser = auth.getCurrentUser();
-
-        if (currentUser != null) {
-            currentUserUid = currentUser.getUid();
-        } else {
-        }
-
-
         FirebaseRecyclerOptions<Room> options =
                 new FirebaseRecyclerOptions.Builder<Room>()
                         .setQuery(databaseReference.orderByChild("userUid").equalTo(currentUserUid), Room.class)
                         .build();
 
-        adapter = new FirebaseRecyclerAdapter<Room, RoomViewHolder>(options) {
+         adapter = new FirebaseRecyclerAdapter<Room, RoomViewHolder>(options) {
             @Override
             protected void onBindViewHolder(@NonNull RoomViewHolder holder, int position, @NonNull Room model) {
-                holder.bind(model);
+                try {
+                    holder.bind(model);
+                } catch (Exception e) {
+                    Log.e("Debug", "Error binding data: " + e.getMessage());
+                    e.printStackTrace();
+                }
             }
 
             @NonNull
@@ -116,24 +117,91 @@ public class BlogsFragment extends Fragment {
 
         public RoomViewHolder(@NonNull View itemView) {
             super(itemView);
-            titleTextView = itemView.findViewById(R.id.titleTextView);
-            descriptionTextView = itemView.findViewById(R.id.descriptionTextView);
-            priceTextView = itemView.findViewById(R.id.priceTextView);
-            locationTextView = itemView.findViewById(R.id.locationTextView);
-            roomImageView = itemView.findViewById(R.id.roomImageView);
+            titleTextView = itemView.findViewById(R.id.titleTextView_edit_delete);
+            descriptionTextView = itemView.findViewById(R.id.descriptionTextView_edit_delete);
+            priceTextView = itemView.findViewById(R.id.priceTextView_edit_delete);
+            locationTextView = itemView.findViewById(R.id.locationTextView_edit_delete);
+            roomImageView = itemView.findViewById(R.id.roomImageView_edit_delete);
         }
 
         public void bind(Room room) {
-            titleTextView.setText(room.getTitle());
-            descriptionTextView.setText(room.getDescription());
-            priceTextView.setText(room.getPrice() + "");
-            locationTextView.setText(room.getLocation());
+            if (room != null) {
+                titleTextView.setText(room.getTitle());
+                descriptionTextView.setText(room.getDescription());
+                priceTextView.setText(String.valueOf(room.getPrice()));
+                locationTextView.setText(room.getLocation());
 
-            if (room.getImageUrl() != null && !room.getImageUrl().isEmpty()) {
-                Picasso.get().load(Uri.parse(room.getImageUrl())).into(roomImageView);
-            }else {
-                roomImageView.setImageResource(R.drawable.home_icon);
+                if (roomImageView != null) {
+                    if (room.getImageUrl() != null && !room.getImageUrl().isEmpty()) {
+                        Picasso.get().load(Uri.parse(room.getImageUrl())).into(roomImageView);
+                    } else {
+                        roomImageView.setImageResource(R.drawable.home_icon);
+                    }
+                }
+            } else {
+                Log.e("Debug", "Room is null");
             }
+
+            ImageButton editButton = itemView.findViewById(R.id.editImageButton_edit_delete);
+            editButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    Intent intent = new Intent(itemView.getContext(), EditRoomActivity.class);
+                    intent.putExtra("roomId", room.getRoomId());
+                    intent.putExtra("title", room.getTitle());
+                    intent.putExtra("description", room.getDescription());
+                    intent.putExtra("price", room.getPrice());
+                    intent.putExtra("location", room.getLocation());
+                    intent.putExtra("userID", currentUserUid);
+                    itemView.getContext().startActivity(intent);
+                }
+            });
+
+            ImageButton deleteButton = itemView.findViewById(R.id.deleteImageButton_edit_delete);
+            deleteButton.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    showDeleteConfirmationDialog(room.getRoomId());
+                }
+            });
         }
+
+        private void showDeleteConfirmationDialog(String roomId) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(itemView.getContext());
+            builder.setTitle("Delete Room");
+            builder.setMessage("Are you sure you want to delete this room?");
+
+            builder.setPositiveButton("Delete", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    deleteRoom(roomId);
+                }
+            });
+
+            builder.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+                @Override
+                public void onClick(DialogInterface dialogInterface, int i) {
+                    dialogInterface.dismiss();
+                }
+            });
+
+            AlertDialog alertDialog = builder.create();
+            alertDialog.show();
+        }
+
+        private void deleteRoom(String roomId) {
+            DatabaseReference databaseReference = FirebaseDatabase.getInstance().getReference("rooms").child(roomId);
+            databaseReference.removeValue().addOnCompleteListener(new OnCompleteListener<Void>() {
+                @Override
+                public void onComplete(@NonNull Task<Void> task) {
+                    if (task.isSuccessful()) {
+                        Toast.makeText(itemView.getContext(), "Room deleted successfully", Toast.LENGTH_SHORT).show();
+                    } else {
+                        Toast.makeText(itemView.getContext(), "Failed to delete room", Toast.LENGTH_SHORT).show();
+                    }
+                }
+            });
+        }
+
     }
 }

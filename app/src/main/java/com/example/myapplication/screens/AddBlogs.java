@@ -7,6 +7,7 @@ import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -87,22 +88,16 @@ public class AddBlogs extends AppCompatActivity {
         String priceStr = priceEditText.getText().toString().trim();
         String location = locationEditText.getText().toString().trim();
 
-        FirebaseUser currentUser = FirebaseAuth.getInstance().getCurrentUser();
-
-
         if (title.isEmpty() || description.isEmpty() || priceStr.isEmpty() || location.isEmpty()) {
             Toast.makeText(AddBlogs.this, "Please fill in all fields", Toast.LENGTH_SHORT).show();
             return;
         }
 
         double price = Double.parseDouble(priceStr);
-
-        if (currentUser != null) {
-            String userUid = currentUser.getUid();
-
-            Room room = new Room(title, description, price, location, selectedImageUri.toString(), userUid);
-
+        String userId = getIntent().getStringExtra("userId");
+        if (userId != null) {
             String roomId = databaseReference.push().getKey();
+            Room room = new Room(roomId, title, description, price, location, selectedImageUri.toString(), userId);
             databaseReference.child(roomId).setValue(room).addOnCompleteListener(new OnCompleteListener<Void>() {
                 @Override
                 public void onComplete(@NonNull Task<Void> task) {

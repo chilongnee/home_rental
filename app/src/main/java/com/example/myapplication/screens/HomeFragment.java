@@ -83,7 +83,7 @@ public class HomeFragment extends Fragment {
 
     public static class RoomViewHolder extends RecyclerView.ViewHolder {
         private TextView titleTextView, descriptionTextView, priceTextView, locationTextView;
-        private ImageView roomImageView;
+        private ImageView roomImageView, favoriteImageView;
         private Room room;
 
         public RoomViewHolder(@NonNull View itemView) {
@@ -99,6 +99,13 @@ public class HomeFragment extends Fragment {
                 public void onClick(View view) {
                     Toast.makeText(itemView.getContext(), "Item Clicked", Toast.LENGTH_SHORT).show();
                     openRoomDetail(itemView.getContext());
+                }
+            });
+
+            favoriteImageView.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    toggleFavoriteStatus();
                 }
             });
         }
@@ -127,6 +134,10 @@ public class HomeFragment extends Fragment {
             intent.putExtra("location", room.getLocation());
             intent.putExtra("imageUrl", room.getImageUrl());
             itemView.getContext().startActivity(intent);
+        }
+
+        private void toggleFavoriteStatus() {
+
         }
     }
 }
